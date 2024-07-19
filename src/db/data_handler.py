@@ -15,7 +15,17 @@ import pickle
 import sqlite3
 import warnings
 
-from sqlite import SQLite
+from .sqlite import SQLite
+
+def singleton(cls):
+    _instance = {}
+
+    def inner(task_name):
+        if (cls,task_name) not in _instance:
+            _instance[(cls,task_name)] = cls(task_name)
+            
+        return _instance[(cls,task_name)]
+    return inner
 
 class ObservableDict(dict):
     def __init__(self, *args, **kwargs):
@@ -34,9 +44,8 @@ class ObservableDict(dict):
         super().__setitem__(key, value)
         if old_value != value:
             self._notify_observers(key, old_value, value)
-
-
-
+            
+@singleton
 class DataHandler():
     def __init__(self, task_name:str) -> None:
         self.task_name = task_name
@@ -121,7 +130,7 @@ class DataHandler():
     
 
     def __get_data_id(self, temp_dict:dict, keys:list[str]) -> int:
-        if not keys:
+        if (keys == ['']):
             raise KeyError("The keys is empty, can't insert the values.")
         
         key = keys[0]
@@ -141,7 +150,7 @@ class DataHandler():
     
     
     def __check_keys_and_insert(self, temp_dict:dict, keys:list[str], values:object, full_path:str, is_force) -> bool:
-        if not keys:
+        if (keys == ['']):
             raise KeyError("The keys is empty, can't insert the values.")
         
         key = keys[0]
@@ -157,9 +166,6 @@ class DataHandler():
                         warnings.warn(f"The path {full_path} already exists. If you want to force update, please set is_force=True.")
                     
                     return False
-                else:
-                    temp_dict[key] = values
-                    return True
                 
         else:
             # Current key is not in the dict
@@ -287,3 +293,9 @@ class DataHandler():
         out.write(result[0][1])
         out.seek(0)
         return pickle.load(out)
+    
+    def save_csv(self):
+        pass
+
+    def load_csv(self):
+        pass
