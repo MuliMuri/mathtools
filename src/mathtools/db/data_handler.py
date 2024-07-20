@@ -3,7 +3,7 @@
 '''
 @File    :   data_handler.py
 @Time    :   2024/07/18 05:34:32
-@Author  :   MuliMuri 
+@Author  :   MuliMuri
 @Version :   1.0
 @Desc    :   To read/write packaged data from/into the database
 '''
@@ -294,8 +294,8 @@ class DataHandler():
         out.seek(0)
         return pickle.load(out)
     
-    def save_csv(self):
-        pass
+    # def save_csv(self):
+    #     pass
 
-    def load_csv(self):
-        pass
+    # def load_csv(self):
+    #     pass
