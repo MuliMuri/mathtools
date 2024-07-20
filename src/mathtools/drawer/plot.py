@@ -20,82 +20,88 @@ from scipy.integrate import simps
 from .. import dataer
 from ..utils.mat_window import rolling_window
 
-class Plot:
-    def __init__(self) -> None:
-        pass
+from typing import Tuple, Dict, Any, List
 
-    @staticmethod
-    def plot(dict_data:dict[str, dict[str]], title:str, x_label:str, y_label:str, figsize:tuple=(12,10), is_show:bool=True) -> None:
-        labels = list(dict_data.keys())
-        value_dict = list(dict_data.values())
+class Plot():
+    def __init__(self, title:str, x_label:str, y_label:str, figsize:Tuple[int, int]=(12,10)) -> None:
+        self.title = title
+        self.x_label = x_label
+        self.y_label = y_label
+        self.fig = plt.figure(figsize=figsize)
+        self.ax = self.fig.add_subplot(111)
+        self.childAxs = []
 
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111)
+        self.data = {}
 
-        for i, label in enumerate(labels):
-            x_range = value_dict[i]["x_range"] if "x_data" not in value_dict[i].keys() else (value_dict[i]["x_data"].min(), value_dict[i]["x_data"].max())
+        self.color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
+        self.draw_num = 0
+
+    def plot(self, data:Dict[str, Dict[str, Any]]) -> 'Plot':
+        keys1 = list(data.keys())
+        keys2 = list(self.data.keys())
+
+        diff_keys = list(set(keys1) - set(keys2))
+        value_dict = [data[key] for key in diff_keys]
+
+        for i, label in enumerate(diff_keys):
             y:np.ndarray = dataer.load_numpy(value_dict[i]["y_name"]) if "y_data" not in value_dict[i].keys() else value_dict[i]["y_data"]
-            x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"] 
+            value_dict[i]["x_range"] = (0, len(y)) if "x_range" not in value_dict[i].keys() else value_dict[i]["x_range"]
 
-            ax.plot(x, y, label=label, linewidth=1.3)
-            
-        if (is_show):
-            plt.legend()
-            plt.title(title)
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.tight_layout()
-            plt.show()
-        else:
-            return fig, ax
-
-    @staticmethod
-    def spline(dict_data:dict[str, dict[str]], title:str, x_label:str, y_label:str, figsize:tuple=(12,10), spline_order:int=3, is_show:bool=True) -> None:
-        labels = list(dict_data.keys())
-        value_dict = list(dict_data.values())
-
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111)
-
-        x_splines = []
-        y_splines = []
-
-        for i, label in enumerate(labels):
             x_range = value_dict[i]["x_range"] if "x_data" not in value_dict[i].keys() else (value_dict[i]["x_data"].min(), value_dict[i]["x_data"].max())
+            x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"]
 
+            color_index = self.draw_num % len(self.color_cycle)
+
+            self.ax.plot(x, y, label=label, linewidth=1.3, color=self.color_cycle[color_index])
+
+            data[label]['color_index'] = color_index
+
+        data.update(self.data)
+        self.data = data
+
+        self.draw_num += 1
+
+        return self
+
+    def spline(self, data:Dict[str, Dict[str, Any]], spline_order:int=3) -> 'Plot':
+        keys1 = list(data.keys())
+        keys2 = list(self.data.keys())
+
+        diff_keys = list(set(keys1) - set(keys2))
+        value_dict = [data[key] for key in diff_keys]
+
+        for i, label in enumerate(diff_keys):
             y:np.ndarray = dataer.load_numpy(value_dict[i]["y_name"]) if "y_data" not in value_dict[i].keys() else value_dict[i]["y_data"]
-            x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"] 
+            value_dict[i]["x_range"] = (0, len(y)) if "x_range" not in value_dict[i].keys() else value_dict[i]["x_range"]
 
-            ax.scatter(x, y)
+            x_range = value_dict[i]["x_range"] if "x_data" not in value_dict[i].keys() else (value_dict[i]["x_data"].min(), value_dict[i]["x_data"].max())
+            x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"]
+
+            color_index = self.draw_num % len(self.color_cycle)
+
+            self.ax.scatter(x, y, color=self.color_cycle[color_index])
             spl = make_interp_spline(x, y, k=spline_order)
             x_spline = np.linspace(x.min(), x.max(), 500)
             y_spline = spl(x_spline)
 
-            ax.plot(x_spline, y_spline, label=label)
+            self.ax.plot(x_spline, y_spline, label=label, linewidth=1.3, color=self.color_cycle[color_index])
 
-            if (not is_show):
-                x_splines.append(x_spline)
-                y_splines.append(y_spline)
+            data[label]['color_index'] = color_index
+
+            data[label]['x_data'] = x_spline
+            data[label]['y_data'] = y_spline
+
             
-        if (is_show):
-            plt.legend()
-            plt.title(title)
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.tight_layout()
-            plt.show()
-        else:
-            return fig, ax, x_splines, y_splines
+        data.update(self.data)
+        self.data = data
 
-    @staticmethod
-    def with_error(dict_data:dict[str, dict[str]], title:str, x_label:str, y_label:str, figsize:tuple=(12,10), ref_times:int=3, is_show:bool=True, fig:plt.Figure=None, ax:plt.Axes=None) -> None:
-        labels = list(dict_data.keys())
-        value_dict = list(dict_data.values())
+        self.draw_num += 1
 
-        if (fig is None or ax is None):
-            fig = plt.figure(figsize=figsize)
-            ax = fig.add_subplot(111)
+        return self
+
+    def with_error_std(self, labels:List[str], ref_times:int=3) -> 'Plot':
+        value_dict = [self.data[label] for label in labels]
 
         for i, label in enumerate(labels):
             x_range = value_dict[i]["x_range"] if "x_data" not in value_dict[i].keys() else (value_dict[i]["x_data"].min(), value_dict[i]["x_data"].max())
@@ -107,68 +113,44 @@ class Plot:
             std_values[:ref_times - 1] = 0
             std_values[ref_times - 1:] = rolling_window(y, ref_times).std(axis=-1, ddof=1)
 
-            ax.fill_between(x, 
+            self.ax.fill_between(x, 
                              y - ref_times * std_values,
                              y + ref_times * std_values,
-                             alpha=0.2)
+                             alpha=0.2,
+                             color=self.color_cycle[value_dict[i]['color_index']])
             
-        if (is_show):
-            plt.legend()
-            plt.title(title)
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.tight_layout()
-            plt.show()
-        else:
-            return fig, ax
+        return self
 
-    @staticmethod
-    def with_local_zoom(dict_data:dict[str, dict[str]], title:str, x_label:str, y_label:str, figsize:tuple=(12,10), zoom_range_ratio:tuple=(0.55, 0.65), zoom_window_pos:tuple=(0.1, 0.1, 0.2, 0.2), is_show:bool=True, fig:plt.Figure=None, ax:plt.Axes=None) -> None:
-        labels = list(dict_data.keys())
-        value_dict = list(dict_data.values())
+    def with_local_zoom(self, labels:List[str], zoom_range_ratio:Tuple[float, float]=(0.55, 0.65), zoom_window_pos:Tuple[float, ...]=(0.1, 0.1, 0.2, 0.2)) -> 'Plot':
+        value_dict = [self.data[label] for label in labels]
 
-        if (fig is None or ax is None):
-            fig = plt.figure(figsize=figsize)
-            ax = fig.add_subplot(111)
+        childAx = self.ax.inset_axes(zoom_window_pos)
+        # zoom_ylims = np.zeros((len(labels), 2))
 
-        childAx = ax.inset_axes(zoom_window_pos)
-        ax.set_ylim(-5, 5)
-        zoom_ylims = np.zeros((len(labels), 2))
         for i, label in enumerate(labels):
             x_range = value_dict[i]["x_range"] if "x_data" not in value_dict[i].keys() else (value_dict[i]["x_data"].min(), value_dict[i]["x_data"].max())
 
             y:np.ndarray = dataer.load_numpy(value_dict[i]["y_name"]) if "y_data" not in value_dict[i].keys() else value_dict[i]["y_data"]
             x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"] 
 
-            childAx.plot(x, y, label=label, linewidth=1.3)
+            childAx.plot(x, y, label=label, linewidth=1.3, color=self.color_cycle[value_dict[i]['color_index']])
 
             childAx.set_xlim(int(x_range[1]*zoom_range_ratio[0]),int(x_range[1]*zoom_range_ratio[1]))
 
-            zoom_y = y[int(y.shape[0]*zoom_range_ratio[0]):int(y.shape[0]*zoom_range_ratio[1])]
-            zoom_ylims[i] = [zoom_y.min()-zoom_y.mean(), zoom_y.max()+zoom_y.mean()]
+            # zoom_y = y[int(y.shape[0]*zoom_range_ratio[0]):int(y.shape[0]*zoom_range_ratio[1])]
+            # zoom_ylims[i] = [zoom_y.min()-zoom_y.mean(), zoom_y.max()+zoom_y.mean()]
 
-            mark_inset(ax, childAx, loc1=3, loc2=4, fc="none", ec='k', lw=1)
             
-        childAx.set_ylim(zoom_ylims.min(), zoom_ylims.max())
+        mark_inset(self.ax, childAx, loc1=3, loc2=4, fc="none", ec='k', lw=1)
+        # self.ax.set_ylim(zoom_ylims.min(), zoom_ylims.max())
+        # childAx.set_ylim(zoom_ylims.min(), zoom_ylims.max())
 
-        if (is_show):
-            plt.legend()
-            plt.title(title)
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.tight_layout()
-            plt.show()
-        else:
-            return fig, ax
+        self.childAxs.append(childAx)
 
-    @staticmethod
-    def with_density(dict_data:dict[str, dict[str]], title:str, x_label:str, y_label:str, figsize:tuple=(12,10), density_range:tuple=(0.25, 0.75), is_show:bool=True, fig:plt.Figure=None, ax:plt.Axes=None) -> None:
-        labels = list(dict_data.keys())
-        value_dict = list(dict_data.values())
+        return self
 
-        if (fig is None or ax is None):
-            fig = plt.figure(figsize=figsize)
-            ax = fig.add_subplot(111)
+    def with_density(self, labels:List[str], density_range:tuple=(0.25, 0.75)) -> 'Plot':
+        value_dict = [self.data[label] for label in labels]
         
         density_ratios = np.zeros(len(labels))
 
@@ -178,7 +160,10 @@ class Plot:
             y:np.ndarray = dataer.load_numpy(value_dict[i]["y_name"]) if "y_data" not in value_dict[i].keys() else value_dict[i]["y_data"]
             x:np.ndarray = np.linspace(x_range[0], x_range[1], len(y)) if "x_data" not in value_dict[i].keys() else value_dict[i]["x_data"]
 
-            ax.fill_between(x, y, where=(x >= x_range[1]*density_range[0]) & (x <= x_range[1]*density_range[1]), alpha=0.2)
+            self. ax.fill_between(x, y, 
+                                  where=(x >= x_range[1]*density_range[0]) & (x <= x_range[1]*density_range[1]), 
+                                  alpha=0.2,
+                                  color=self.color_cycle[value_dict[i]['color_index']])
             
             simps_area = simps(y, x)
             
@@ -188,14 +173,17 @@ class Plot:
             simps_density = simps(y_density, x_density)
             density_ratios[i] = simps_density/simps_area
 
-            ax.text(x_range[1]*density_range[0], y.max(), f"Density: {density_ratios[i]:.2f}", fontsize=12)
+            self.ax.text(x_range[1]*density_range[0], y.max(), 
+                         f"Density: {density_ratios[i]:.2f}", 
+                         fontsize=12, 
+                         color=self.color_cycle[value_dict[i]['color_index']])
             
-        if (is_show):
-            plt.legend()
-            plt.title(title)
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.tight_layout()
-            plt.show()
-        else:
-            return fig, ax
+        return self
+        
+    def show(self) -> None:
+        plt.legend()
+        plt.title(self.title)
+        plt.xlabel(self.x_label)
+        plt.ylabel(self.y_label)
+        plt.tight_layout()
+        plt.show()
