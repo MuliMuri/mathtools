@@ -1,6 +1,11 @@
 # for test
 pytest
 
+# lint and coverage
+flake8
+mypy
+coverage
+
 # 3rd party packages for useiing
 numpy
 scipy
