@@ -41,6 +41,7 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Generate coverage report
       run: |
+        pwd
         coverage run --source src/mathtools --parallel-mode -m pytest
         coverage combine
         coverage xml -i
