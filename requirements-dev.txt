@@ -1,0 +1,7 @@
+# for test
+pytest
+
+# 3rd party packages for useiing
+numpy
+scipy
+matplotlib
