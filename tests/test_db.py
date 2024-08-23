@@ -1,14 +1,9 @@
-import os
-import sys
-
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import pytest
 
-
 import numpy as np
-from src.mathtools.db.data_handler import DataHandler
+
+from mathtools.db import DataHandler
+
 
 class TestDataHandler:
     def test_save_numpy(self, tmpdir):
@@ -16,7 +11,7 @@ class TestDataHandler:
         dh = DataHandler(str(tmpdir / "test_db"))
         dh = DataHandler(str(tmpdir / "test_db.db"))
         dh.save_numpy("test.test_npy1.1", test_array)
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(UserWarning):
             dh.save_numpy("test.test_npy1.1", test_array)
         assert np.array_equal(test_array, dh.load_numpy("test.test_npy1.1"))
 
@@ -30,7 +25,7 @@ class TestDataHandler:
 
         with pytest.raises(KeyError) as e:
             dh.save_numpy("", test_array)
-        
+
         with pytest.raises(KeyError) as e:
             dh.load_numpy("1.2.3")
 
@@ -41,7 +36,7 @@ class TestDataHandler:
         test_obj = {"test": "test", "test2": 1, "test3": [1, 2, 3], "test4": {"test": "test"}}
         dh = DataHandler(str(tmpdir / "test_db"))
         dh.save_obj("test.test_obj1", test_obj)
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(UserWarning):
             dh.save_obj("test.test_obj1", test_obj)
         assert test_obj == dh.load_obj("test.test_obj1")
 
