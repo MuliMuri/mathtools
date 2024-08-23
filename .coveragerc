@@ -1,3 +1,10 @@
 [run]
+source =
+    src/mathtools
+
 omit =
     src/mathtools/db/sqlite.py
+
+[report]
+omit =
+    */test/*
