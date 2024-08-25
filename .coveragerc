@@ -1,3 +1,5 @@
 [run]
 omit =
     src/mathtools/db/sqlite.py
+    src/mathtools/globals.py
+    src/mathtools/initialize.py
