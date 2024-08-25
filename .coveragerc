@@ -1,9 +1,11 @@
 [run]
 source =
-    src/mathtools
+    mathtools
 
 omit =
-    src/mathtools/db/sqlite.py
+    */mathtools/db/sqlite.py
+    */mathtools/globals.py
+    */mathtools/initialize.py
 
 [report]
 omit =

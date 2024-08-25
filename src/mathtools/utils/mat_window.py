@@ -3,14 +3,15 @@
 '''
 @File    :   mat_window.py
 @Time    :   2024/07/20 04:35:14
-@Author  :   MuliMuri 
+@Author  :   MuliMuri
 @Version :   1.0
 @Desc    :   Some useful functions for numpy matrix when it needs to be windowed
 '''
 
 import numpy as np
 
-def rolling_window(mat:np.ndarray, window_size:int) -> np.ndarray:
+
+def rolling_window(mat: np.ndarray, window_size: int) -> np.ndarray:
     """To solve ndarray has no pandas rolling function
 
     Args:

@@ -3,7 +3,7 @@
 '''
 @File    :   matlab.py
 @Time    :   2024/07/20 07:06:31
-@Author  :   MuliMuri 
+@Author  :   MuliMuri
 @Version :   1.0
 @Desc    :   Interacting with MATLAB mat
 '''
@@ -11,7 +11,10 @@
 import numpy as np
 import scipy.io as sio
 
-def read_mat(file_path:str) -> dict[str, np.ndarray]:
+from typing import Dict
+
+
+def read_mat(file_path: str) -> Dict[str, np.ndarray]:
     """Read .mat file
 
     Args:
@@ -27,7 +30,8 @@ def read_mat(file_path:str) -> dict[str, np.ndarray]:
 
     return mat_dict
 
-def save_mat(file_path:str, data:dict[str, np.ndarray]) -> None:
+
+def save_mat(file_path: str, data: Dict[str, np.ndarray]) -> None:
     """Save data to .mat file
 
     Args:
