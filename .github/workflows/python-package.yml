@@ -39,6 +39,18 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest
         pip install -r requirements-dev.txt
+    - name: Build dist and test with pytest
+      if: matrix.os != 'windows-latest'
+      run: |
+        python -m build
+        pip install dist/*.whl
+        python -m pytest
+    - name: Build dist and test with pytest on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        python -m build
+        pip install (Get-ChildItem dist/*.whl)
+        python -m pytest
     - name: Generate coverage report
       run: |
         ls
