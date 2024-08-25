@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 from scipy.interpolate import make_interp_spline
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 from .. import dataer
 from ..utils.mat_window import rolling_window
@@ -257,12 +257,12 @@ class Plot():
                                   alpha=0.2,
                                   color=self.color_cycle[value_dict[i]['color_index']])
 
-            simps_area = simps(y, x)
+            simps_area = simpson(y, x=x)
 
             x_density = x[(x > x_range[1] * density_range[0]) & (x < x_range[1] * density_range[1])]
             y_density = y[(x > x_range[1] * density_range[0]) & (x < x_range[1] * density_range[1])]
 
-            simps_density = simps(y_density, x_density)
+            simps_density = simpson(y_density, x=x_density)
             density_ratios[i] = simps_density / simps_area
 
             self.ax.text(x_range[1] * density_range[0], y.max(),
