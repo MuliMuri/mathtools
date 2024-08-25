@@ -113,7 +113,7 @@ class Bar():
 
         return self
 
-    def show(self) -> None:
+    def show(self) -> None:     # pragma: no cover
         plt.legend()
         plt.title(self.title)
         plt.xlabel(self.x_label)
