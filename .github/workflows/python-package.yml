@@ -9,11 +9,13 @@ on:
     paths:
       - "src/mathtools/**"
       - "test/**"
+      - "setup.py"
       - ".github/workflows/python-package.yml"
   pull_request:
     paths:
       - "src/mathtools/**"
       - "test/**"
+      - "setup.py"
       - ".github/workflows/python-package.yml"
   schedule:
     - cron: '0 10 * * *'
@@ -21,7 +23,6 @@ on:
 jobs:
   build:
     strategy:
-      fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
@@ -39,10 +40,22 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pytest
         pip install -r requirements-dev.txt
+    - name: Build dist and test with pytest
+      if: matrix.os != 'windows-latest'
+      run: |
+        python -m build
+        pip install dist/*.whl
+        python -m pytest
+    - name: Build dist and test with pytest on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        python -m build
+        pip install (Get-ChildItem dist/*.whl)
+        python -m pytest
     - name: Generate coverage report
       run: |
         ls
-        coverage run --source src/mathtools --parallel-mode -m pytest
+        coverage run --source mathtools --parallel-mode -m pytest
         coverage combine
         coverage xml -i
       env:
