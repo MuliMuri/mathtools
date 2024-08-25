@@ -122,12 +122,14 @@ class Heatmap():
 
     def with_colorbar(self,
                       bar_title: str = "") -> 'Heatmap':
+
         self.fig.colorbar(self.heatmap_datas[list(self.heatmap_datas.keys())[0]]['plot'], label=bar_title)
 
         return self
 
     def with_specific_text(self,
                            text_color: str = "black") -> 'Heatmap':
+
         for key in self.heatmap_datas.keys():
             data = self.heatmap_datas[key]
 
