@@ -140,7 +140,7 @@ class Heatmap():
 
         return self
 
-    def show(self) -> None:
+    def show(self) -> None:     # pragma: no cover
         plt.title(self.title)
         plt.xlabel(self.x_label)
         plt.ylabel(self.y_label)
