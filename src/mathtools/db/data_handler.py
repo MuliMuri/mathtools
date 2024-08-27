@@ -93,7 +93,7 @@ class DataHandler():
 
         if (result.__len__() != 0):
             pkl_obj = pickle.loads(result[0][1])
-            if (pkl_obj is dict):
+            if (isinstance(pkl_obj, dict)):
                 config['data_mapper'] = pkl_obj
         else:
             self.db.insert("config", {"key": "data_mapper", "value": pickle.dumps(config['data_mapper'])})
