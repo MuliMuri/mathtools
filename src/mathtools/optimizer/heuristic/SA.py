@@ -56,9 +56,6 @@ class SA():
         else:
             return np.random.rand() < np.exp(-(result_new - result) / self.T)
 
-    def best(self):
-        pass
-
     def run(self) -> np.ndarray:
         count = 0
 
