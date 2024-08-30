@@ -8,7 +8,6 @@
 @Desc    :   Simulated Annealing Algorithm (SA)
 '''
 
-
 import numpy as np
 
 from ...algorithm.perturbation import Perturbation

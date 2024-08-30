@@ -1,6 +1,6 @@
 import numpy as np
 
-from mathtools.optimizer.heuristic.SA import SA
+from mathtools.optimizer.heuristic import SA
 from mathtools.algorithm.perturbation import Perturbation
 
 
