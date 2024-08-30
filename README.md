@@ -5,7 +5,7 @@
 
 MathTools is a Python package that provides a set of tools for mathematical competition. Such as drawing complex figures, optimizing algorithms, and so on.
 
-The package is designed to be simple and easy to use. It is built on top of the NumPy, Matplotlib and something common mathtical library and provides additional functionality for common mathematical competition.
+The package is designed to be simple and easy to use. It is built on top of the NumPy, Matplotlib and something common mathtical library and provides additional, useful functions for common mathematical competition.
 
 Main Features
 
